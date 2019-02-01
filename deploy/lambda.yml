@@ -1,0 +1,49 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: Set up lambda
+Resources:
+  TempConverterLambda:
+    Type: AWS::Lambda::Function
+    DependsOn:
+      - TempConverterLambdaRole
+      - TempConverterLambdaPolicy
+    Properties:
+      Code:
+        ZipFile: temp_converter_lambda.py
+      Description: "A AWS lambda that converts Celcius to Farenheit and vice versa"
+      FunctionName: 'temperature-converter-lambda-testing-1927'
+      Handler: "temp_converter_lambda.handler"
+      MemorySize: 128
+      ReservedConcurrentExecutions: 5
+      Role: !GetAtt TempConverterLambdaRole.Arn
+      Runtime: python3.6
+      Timeout: 60
+
+    TempConverterLambdaRole:
+      Type: AWS::IAM::Role
+      Properties:
+        AssumeRolePolicyDocument:
+          Version: "2012-10-17"
+          Statement:
+            Effect: "Allow"
+            Principal:
+              Service:
+                - "lambda.amazonaws.com"
+            Action:
+              - "sts:AssumeRole"
+        Path: "/"
+
+    TempConverterLambdaPolicy:
+      DependsOn:
+        - !Ref TempConverterLambdaRole
+      Type: AWS::IAM::Policy
+      Properties:
+        PoliicyName: TempConverterLambdaPolicy
+        Roles:
+          - !Ref TempConverterLambdaRole
+        PolicyDocument:
+          Version: "2012-10-17"
+          Statement:
+            - Effect: Allow
+              Action: "logs:*"
+              Resource:
+                - "arn:aws:logs:*:*:*"
